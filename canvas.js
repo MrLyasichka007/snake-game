@@ -3,6 +3,14 @@ var mapSize = [21,21]
 var cellSize = 800/mapSize[0]
 var matrixMap = new Array();
 
+function drawTile(stage,mode,color,cords){
+    tile = new createjs.Shape();
+    if(mode) tile.graphics.beginFill(color).dr(cords[1]*cellSize,cords[0]*cellSize,cellSize,cellSize);
+    else tile.graphics.s("gray").beginFill("white").dr(cords[1]*cellSize,cords[0]*cellSize,cellSize,cellSize);
+    stage.addChild(tile);
+    stage.update(event);
+}
+
 function keyDown(event){
     if (event.defaultPrevented) {
         return; // Do nothing if the event was already processed
@@ -22,33 +30,22 @@ function initMap(stage){
         var line=new Array()
         for(var j = 0;j<mapSize[1];j++){
             line.push(0);
-            tile = new createjs.Shape();
-            tile.graphics.s("gray").drawRect(j*cellSize,i*cellSize,cellSize,cellSize);
-            stage.addChild(tile);
-            stage.update(event);
+            drawTile(stage,0,null,[i,j]);
         }
         matrixMap.push(line);
     }
 }
 
-
-
 function initSnake(stage){
     for(var i =0;i<snakeVector.length;i++){
         matrixMap[snakeVector[i][0]][snakeVector[i][1]]=1;
-        tile = new createjs.Shape();
-        tile.graphics.f("red").dr(snakeVector[i][1]*cellSize,snakeVector[i][0]*cellSize,cellSize,cellSize);
-        stage.addChild(tile);
-        stage.update(event);
+        drawTile(stage,1,"red",snakeVector[i]);
     }
 }
 
 function createFruit(stage){
     var fruitCords =[Math.floor(Math.random() * mapSize[0]),Math.floor(Math.random() * mapSize[1])]
-    tile = new createjs.Shape();
-    tile.graphics.f("green").dr(fruitCords[1]*cellSize,fruitCords[0]*cellSize,cellSize,cellSize);
-    stage.addChild(tile);
-    stage.update(event);
+    drawTile(stage,1,"green",fruitCords);
 }
 
 // function anim(stage,circle,maxScale){
