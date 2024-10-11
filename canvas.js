@@ -1,7 +1,10 @@
-var snakeVector = [[10,6],[10,5],[10,4]]
-var mapSize = [21,21]
-var cellSize = 800/mapSize[0]
+var snakeVector = [[10,6],[10,5],[10,4]];
+var previousTile = [10,3]
+var mapSize = [21,21];
+var cellSize = 800/mapSize[0];
 var matrixMap = new Array();
+const Dirction = {UP:"UP",DOWN:"DOWN",LEFT:"LEFT",RIGHT:"RIGHT"};
+var curDirection = Dirction.RIGHT;
 
 function drawTile(stage,mode,color,cords){
     tile = new createjs.Shape();
@@ -13,14 +16,14 @@ function drawTile(stage,mode,color,cords){
 
 function keyDown(event){
     if (event.defaultPrevented) {
-        return; // Do nothing if the event was already processed
+        return;
       }
       switch (event.key) {
-        case "ArrowDown":console.log("down");break;
-        case "ArrowUp":console.log("up");break;
-        case "ArrowLeft":console.log("left");break;
-        case "ArrowRight":console.log("right");break;
-        default:return; // Quit when this doesn't handle the key event.
+        case "ArrowDown":{curDirection=Dirction.DOWN;break;}
+        case "ArrowUp":{curDirection=Dirction.UP;break;}
+        case "ArrowLeft":{curDirection=Dirction.LEFT;break;}
+        case "ArrowRight":{curDirection=Dirction.RIGHT;break;}
+        default:return;
       }
       event.preventDefault();
 }
@@ -36,16 +39,33 @@ function initMap(stage){
     }
 }
 
-function initSnake(stage){
+function drawSnake(stage){
+    drawTile(stage,0,"none",previousTile);
+    matrixMap[previousTile[0]][previousTile[1]]=0;
     for(var i =0;i<snakeVector.length;i++){
-        matrixMap[snakeVector[i][0]][snakeVector[i][1]]=1;
-        drawTile(stage,1,"red",snakeVector[i]);
+        if(i===0){
+            drawTile(stage,1,"orange",snakeVector[i]);
+            matrixMap[snakeVector[i][0]][snakeVector[i][1]]+=5;
+        }
+        else if(i===snakeVector.length-1){
+            drawTile(stage,1,"pink",snakeVector[i]);
+            matrixMap[snakeVector[i][0]][snakeVector[i][1]]=1;
+        }
+        else{
+            drawTile(stage,1,"red",snakeVector[i]);
+            matrixMap[snakeVector[i][0]][snakeVector[i][1]]=1;
+        }
     }
 }
 
 function createFruit(stage){
     var fruitCords =[Math.floor(Math.random() * mapSize[0]),Math.floor(Math.random() * mapSize[1])]
     drawTile(stage,1,"green",fruitCords);
+    matrixMap[fruitCords[0]][fruitCords[1]]=3;
+}
+
+function colliding(stage){
+
 }
 
 // function anim(stage,circle,maxScale){
@@ -66,19 +86,14 @@ function createFruit(stage){
 //     createjs.Ticker.addEventListener("tick", tick);
 // }
 
-// function initCircle(stage,circle,size,color){
-//     circle.graphics.beginFill(color).drawCircle(450, 450, size);
-//     stage.addChild(circle);
-//     stage.update(event);
-// }
-
-
 function drawDiagonal() { 
     var stage = new createjs.Stage("canvas"); 
     
     initMap(stage);
-    initSnake(stage);
+    drawSnake(stage);
     createFruit(stage);
+
+
     console.log(matrixMap);
 
 
