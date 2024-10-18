@@ -11,6 +11,7 @@ var curDirection = "none";
 var score = 0;
 var fruitCords= [10,12]
 
+function deltaTime(a,b){return b-a}
 
 function drawTile(stage,mode,color,cords){
     tile = new createjs.Shape();
@@ -77,14 +78,19 @@ function headCollide(stage){
         case 9:{
             score++;
             document.getElementById("score").textContent = score;
-            console.log("grothTile="+grothTile+", prevTile="+prevTile+", backGrothTile="+backGrothTile+", backPrevTile="+backPrevTile)
             snakeVector.push([grothTile[0],grothTile[1]]);
+            
             grothTile[0] = backGrothTile[0];
             grothTile[1] = backGrothTile[1];
             prevTile[0] = backPrevTile[0];
             prevTile[1] = backPrevTile[1];
-            console.log("grothTile="+grothTile+", prevTile="+prevTile+", backGrothTile="+backGrothTile+", backPrevTile="+backPrevTile)
-            fruitCords=[Math.floor(Math.random() * (mapSize[0]-2))+1,Math.floor(Math.random() * (mapSize[1]-2))+1]
+            
+            while (snakeVector.some(e=>(fruitCords[0]===e[0] && fruitCords[1]===e[1]))){
+                var x =Math.floor(Math.random() * (mapSize[0]-2))+1;
+                var y =Math.floor(Math.random() * (mapSize[1]-2))+1;
+            fruitCords=[x,y]
+            }
+            
             createFruit(fruitCords[0],fruitCords[1]);
             drawTile(stage,1,"green",fruitCords);
             break;}
@@ -117,46 +123,58 @@ function snakeMove(stage){
     function tick(event) {
         curDirection=direction;
         if(direction==="none")return;
+
         prevTile[0]=grothTile[0];
         prevTile[1]=grothTile[1];
         drawTile(stage,0,"null",prevTile);
+
         grothTile[0]=snakeVector[snakeVector.length-1][0];
         grothTile[1]=snakeVector[snakeVector.length-1][1];
         drawTile(stage,0,"null",grothTile);
+        var a=new Date()
+        snakeVector.pop();
 
-        for(var i=snakeVector.length-1;i>0;i--){
-            matrixMap[snakeVector[i][0]][snakeVector[i][1]]=2;
-            snakeVector[i][0]=snakeVector[i-1][0];
-            snakeVector[i][1]=snakeVector[i-1][1];
-            drawTile(stage,1,"red",snakeVector[i]);
-        }
         matrixMap[grothTile[0]][grothTile[1]]=0;
         switch(curDirection) {
             case "up":{
-                snakeVector[0][0]--;
+                var headCord=[snakeVector[0][0],snakeVector[0][1]];
+                drawTile(stage,1,"red",headCord);
+                headCord[0]--;
+                snakeVector=[headCord].concat(snakeVector);
                 matrixMap[snakeVector[0][0]][snakeVector[0][1]]+=3;
                 break;
             }
             case "down":{
-                snakeVector[0][0]++;
+                var headCord=[snakeVector[0][0],snakeVector[0][1]];
+                drawTile(stage,1,"red",headCord);
+                headCord[0]++;
+                snakeVector=[headCord].concat(snakeVector);
                 matrixMap[snakeVector[0][0]][snakeVector[0][1]]+=3;
                 break;
             }
             case "left":{
-                snakeVector[0][1]--;
+                var headCord=[snakeVector[0][0],snakeVector[0][1]];
+                drawTile(stage,1,"red",headCord);
+                headCord[1]--;
+                snakeVector=[headCord].concat(snakeVector);
                 matrixMap[snakeVector[0][0]][snakeVector[0][1]]+=3;
                 break;
             }
             case "right":{
-                snakeVector[0][1]++;
+                var headCord=[snakeVector[0][0],snakeVector[0][1]];
+                drawTile(stage,1,"red",headCord);
+                headCord[1]++;
+                snakeVector=[headCord].concat(snakeVector);
                 matrixMap[snakeVector[0][0]][snakeVector[0][1]]+=3;
                 break;
             }
         }
+        var b=new Date();
         drawTile(stage,1,"orange",snakeVector[0]);
         stage.update(event);
         headCollide(stage);
-        console.log("score="+score+", snakeVector=["+snakeVector+"], grothTile="+grothTile+", prevTile="+prevTile+", backGrothTile="+backGrothTile+", backPrevTile="+backPrevTile)
+        console.log(deltaTime(a,b))
+        
     }
     
     createjs.Ticker.framerate=5; //устанавливаем количество кадров в секунду
@@ -171,8 +189,6 @@ function drawDiagonal() {
     createFruit(fruitCords[0],fruitCords[1]);
     drawScene(stage);
     snakeMove(stage);
-    
-    console.log(matrixMap);
 } 
 window.addEventListener("load", drawDiagonal, true);
 window.addEventListener("keydown", keyDown, true);
